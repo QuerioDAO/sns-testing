@@ -11,7 +11,7 @@ import yaml
 import numpy as np
 from NF_matching_function import matching_function
 from config import input_file, no_participation_scenarios, no_total_maturity_scenarios, nf_total_maturity_min, nf_total_maturity_max
-from utils import parse_gov_params, parse_dev_neurons, convert_tokens, convert_to_years, calculate_relative_swap_voting_power, calculate_swap_average_dissolve_delay, create_token_distribution_df, create_icp_participation_df
+from utils import parse_gov_params, parse_dev_neurons, parse_dev_neurons_querio, parse_dev_neurons_community, convert_tokens, convert_to_years, calculate_relative_swap_voting_power, calculate_swap_average_dissolve_delay, create_token_distribution_df, create_icp_participation_df
 
 
 def get_scenarios():
@@ -93,8 +93,9 @@ def get_scenarios():
         }
     
            
-    dev_neurons_df = parse_dev_neurons(sns_init_data, gov_params)                           
-    token_distribution_scenarios = [[create_token_distribution_df(sns_init_data, dev_neurons_df, scenarios, scenario_idx, maturity_idx) 
+    dev_neurons_df = parse_dev_neurons_querio(sns_init_data, gov_params, 'ohuzz-mfrdv-fby62-43l4a-bctsr-yaqom-ow2nz-fskcu-yey4s-rg2nj-tae', '6mmxv-jryov-mbbzk-v672n-zxb4f-kwkga-xgvfh-l7sqo-pbb3l-rbsoa-zqe')
+    community_neurons_df = parse_dev_neurons_community(sns_init_data, gov_params, 'ohuzz-mfrdv-fby62-43l4a-bctsr-yaqom-ow2nz-fskcu-yey4s-rg2nj-tae', '6mmxv-jryov-mbbzk-v672n-zxb4f-kwkga-xgvfh-l7sqo-pbb3l-rbsoa-zqe')                             
+    token_distribution_scenarios = [[create_token_distribution_df(sns_init_data, dev_neurons_df, community_neurons_df, scenarios, scenario_idx, maturity_idx) 
                                      for scenario_idx in scenario_indices] 
                                     for maturity_idx in range(no_total_maturity_scenarios)]
     

@@ -98,9 +98,46 @@ def parse_dev_neurons(sns_init_data, gov_params):
 
     return pd.DataFrame(dev_neurons_list)
 
+def parse_dev_neurons_querio(sns_init_data, gov_params, value1, value2):
+    dev_neurons_list = []
+
+    # Iterate over each neuron in the YAML data
+    for neuron in sns_init_data['Distribution']['Neurons']:
+        if neuron['principal'] == value1 or neuron['principal'] == value2:
+            neuron_dict = {
+                'controller': neuron['principal'],
+                'stake': convert_tokens(neuron['stake']),
+                'dissolve_delay': convert_to_years(neuron['dissolve_delay']),
+                'vesting_period': convert_to_years(neuron['vesting_period']),
+                'memo': neuron['memo'],
+            }
+            neuron_dict['voting_power'] = voting_power(neuron_dict['dissolve_delay'], neuron_dict['stake'], gov_params)
+            dev_neurons_list.append(neuron_dict)
+
+    return pd.DataFrame(dev_neurons_list)
+
+def parse_dev_neurons_community(sns_init_data, gov_params, value1, value2):
+    dev_neurons_list = []
+
+    # Iterate over each neuron in the YAML data
+    for neuron in sns_init_data['Distribution']['Neurons']:
+        if neuron['principal'] != value1 and neuron['principal'] != value2:
+            neuron_dict = {
+                'controller': neuron['principal'],
+                'stake': convert_tokens(neuron['stake']),
+                'dissolve_delay': convert_to_years(neuron['dissolve_delay']),
+                'vesting_period': convert_to_years(neuron['vesting_period']),
+                'memo': neuron['memo'],
+            }
+            neuron_dict['voting_power'] = voting_power(neuron_dict['dissolve_delay'], neuron_dict['stake'], gov_params)
+            dev_neurons_list.append(neuron_dict)
+
+    return pd.DataFrame(dev_neurons_list)
+
 
 def create_token_distribution_df(sns_init_data, 
                                  dev_neurons_df,
+                                 community_neurons_df,
                                  scenarios,
                                  particpation_scenario_index,
                                  maturity_scenario_index):
@@ -109,6 +146,9 @@ def create_token_distribution_df(sns_init_data,
     # Calculate the sum of the stakes and the stake-weighted average dissolve delay
     total_dev_neurons_stake = dev_neurons_df['stake'].sum()
     avg_dissolve_delay_dev_neurons = (dev_neurons_df['stake'] * dev_neurons_df['dissolve_delay']).sum() / total_dev_neurons_stake
+
+    total_community_neurons_stake = community_neurons_df['stake'].sum()
+    avg_dissolve_delay_community_neurons = (community_neurons_df['stake'] * community_neurons_df['dissolve_delay']).sum() / total_community_neurons_stake
     return pd.DataFrame([
         {
             'type': 'Treasury',
@@ -121,6 +161,12 @@ def create_token_distribution_df(sns_init_data,
             'tokens': total_dev_neurons_stake,
             'average_dissolve_delay': avg_dissolve_delay_dev_neurons,
             'voting_power': dev_neurons_df['voting_power'].sum()
+        },
+        {
+            'type': 'Community Neurons',
+            'tokens': total_community_neurons_stake,
+            'average_dissolve_delay': avg_dissolve_delay_community_neurons,
+            'voting_power': community_neurons_df['voting_power'].sum()
         },
         {
             'type': 'Swap: Direct',

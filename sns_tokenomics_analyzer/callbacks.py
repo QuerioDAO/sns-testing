@@ -16,6 +16,7 @@ from NF_matching_function import matching_function
 color_map = {
    'Treasury': '#5DADE2',  # Light Blue
    'Developer Neurons': '#AF7AC5',  # Light Purple
+   'Community Neurons': '#F1EB9C',  # Light Yellow
    'Swap: Fund': '#2ECC71',  # Soft Green
    'Swap: Direct': '#ABEBC6',  # Pale Green
    'Swap: Remaining Capacity': '#BDC3C7'  # Light Grey
